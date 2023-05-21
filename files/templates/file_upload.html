@@ -1,0 +1,10 @@
+{% extends "base.html" %} {% load static %}
+<!-- comment -->
+{% block title %} Upload your file {% endblock title %} {% block content %}
+<div class="upload">
+  <form enctype="multipart/form-data" method="post">
+    {% csrf_token %} {{ form.as_p }}
+    <button type="submit">Upload</button>
+  </form>
+</div>
+{% endblock content %}
