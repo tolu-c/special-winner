@@ -6,7 +6,7 @@
     {% for file in files %}
     <li>{{file.file.name}}</li>
     {% empty %}
-    <li>No File yet, <a href="#">Upload</a></li>
+    <li>No File yet, <a href="{% url 'files:file_upload' %}">Upload</a></li>
     {% endfor %}
   </ul>
 </div>

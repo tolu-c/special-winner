@@ -19,7 +19,7 @@ def file_upload(request):
             file = form.save(commit=False)
             file.user = request.user
             file.save()
-            return redirect('file_list')
+            return redirect('files:file_list')
     else:
         form = PrivateFileForm()
     return render(request, 'file_upload.html', {'form': form})
