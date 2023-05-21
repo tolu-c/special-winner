@@ -4,13 +4,42 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
 from django.contrib.auth.views import LoginView
 from .forms import PrivateFileForm
+from django.http import FileResponse, HttpResponse
+import mimetypes
+import os
 
 # Create your views here.
+
 
 @login_required
 def file_list(request):
     files = PrivateFile.objects.filter(user=request.user)
     return render(request, 'file_list.html', {'files': files})
+
+
+@login_required
+def file_detail(request, file_id):
+    file = PrivateFile.objects.get(id=file_id, user=request.user)
+
+    file_path = file.file.path
+    print(file_path)
+
+    if os.path.exists(file_path):
+        content_type, _ = mimetypes.guess_type(file_path)
+        with open(file_path, 'rb') as f:
+            if content_type is None:
+                response = HttpResponse(f.read())
+            else:
+                response = FileResponse(f, content_type=content_type)
+
+            response['Content-Disposition'] = 'inline; filename=' + \
+                os.path.basename(file_path)
+
+            return response
+    else:
+        return HttpResponse('File not found')
+    # return render(request, 'file_detail.html', {'file': file})
+
 
 @login_required
 def file_upload(request):
@@ -24,6 +53,7 @@ def file_upload(request):
     else:
         form = PrivateFileForm()
     return render(request, 'file_upload.html', {'form': form})
+
 
 def user_login(request):
     return LoginView.as_view(template_name="login.html")(request)
