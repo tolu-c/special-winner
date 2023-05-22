@@ -3,6 +3,7 @@ from .models import PrivateFile
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
 from django.contrib.auth import logout
+from django.contrib.auth.forms import UserCreationForm
 from .forms import PrivateFileForm
 from django.http import FileResponse, HttpResponse
 import mimetypes
@@ -64,3 +65,14 @@ def user_login(request):
 def user_logout(request):
     logout(request)
     return redirect('files:home')
+
+
+def user_register(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('files:login')
+    else:
+        form = UserCreationForm()
+    return render(request, 'register.html', {'form': form})
