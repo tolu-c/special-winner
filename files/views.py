@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from .models import PrivateFile
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
+from django.contrib.auth import logout
 from .forms import PrivateFileForm
 from django.http import FileResponse, HttpResponse
 import mimetypes
@@ -58,3 +59,8 @@ def file_upload(request):
 
 def user_login(request):
     return LoginView.as_view(template_name="login.html")(request)
+
+
+def user_logout(request):
+    logout(request)
+    return redirect('files:home')
