@@ -6,6 +6,7 @@ from django.contrib.auth.views import LogoutView
 app_name = 'files'
 
 urlpatterns = [
+    path('', views.home, name='home'),
     path('files/', views.file_list, name='file_list'),
     path('files/<int:file_id>', views.file_detail, name='file_detail'),
     path('upload/', views.file_upload, name='file_upload'),

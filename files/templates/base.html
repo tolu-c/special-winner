@@ -14,7 +14,7 @@
         {% if user.is_authenticated %}
         <div>{{user.username}}</div>
         <ul>
-          <li>Home</li>
+          <li><a href="{% url 'files:home' %}">Home</a></li>
           <li><a href="{% url 'files:file_list' %}">File List</a></li>
           <li><a href="{% url 'files:file_upload' %}">Add Files</a></li>
           <li><a href="{% url 'files:logout' %}">Logout</a></li>

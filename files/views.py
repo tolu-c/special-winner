@@ -11,6 +11,10 @@ import os
 # Create your views here.
 
 
+def home(request):
+    return render(request, 'index.html')
+
+
 @login_required
 def file_list(request):
     files = PrivateFile.objects.filter(user=request.user)
@@ -26,18 +30,18 @@ def file_detail(request, file_id):
 
     if os.path.exists(file_path):
         content_type, _ = mimetypes.guess_type(file_path)
-        with open(file_path, 'rb') as f:
-            if content_type is None:
-                response = HttpResponse(f.read())
-            else:
-                response = FileResponse(f, content_type=content_type)
 
-            response['Content-Disposition'] = 'inline; filename=' + \
-                os.path.basename(file_path)
+        if content_type is None:
+            response = HttpResponse(file.file.read())
+        else:
+            response = FileResponse(file.file, content_type=content_type)
+        response['Content-Disposition'] = 'inline; filename=' + \
+            os.path.basename(file_path)
 
-            return response
+        return response
     else:
         return HttpResponse('File not found')
+
     # return render(request, 'file_detail.html', {'file': file})
 
 
