@@ -1,8 +1,37 @@
-{% extends "base.html" %} {% load static %}
-<!-- comment -->
-{% block title %} {{ file.file.name }} {% endblock title %} {% block content %}
+{% extends "base.html" %} {% load static %} {% load file_name %}
+<!-- break -->
+{% block title %} {{ file.file.name }} {% endblock title %}
+<!-- break -->
+{% block content %}
 <div class="file">
-  <h2>{{file.file.name}}</h2>
-  <div>{{file.file}}</div>
+  <h2>{{ file.file.name|basename }}</h2>
+
+  <!-- Download Button -->
+  <a href="{{ file.file.url }}" download>Download</a>
+
+  <div class="file__response">
+    <!-- Display File Content -->
+    <!-- Check if the content type is an image -->
+    {% if content_type|default:''|slice:'0:5' == 'image' %}
+    <!-- Display Image -->
+    <img
+      src="{{ file.file.url }}"
+      alt="{{ file.file.name }}"
+      width="500"
+      height="500"
+    />
+    {% elif content_type|default:'' == 'application/pdf' %}
+    <!-- Display PDF -->
+    <embed
+      src="{{ file.file.url }}"
+      width="500"
+      height="500"
+      type="{{ content_type }}"
+    />
+    {% else %}
+    <!-- Display unsupported file message -->
+    <p>Unsupported file type.</p>
+    {% endif %}
+  </div>
 </div>
 {% endblock content %}

@@ -1,7 +1,6 @@
 from django.shortcuts import render, redirect
 from .models import PrivateFile
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import logout
 from django.contrib.auth.views import LoginView
 from .forms import PrivateFileForm
 from django.http import FileResponse, HttpResponse
@@ -26,7 +25,6 @@ def file_detail(request, file_id):
     file = PrivateFile.objects.get(id=file_id, user=request.user)
 
     file_path = file.file.path
-    print(file_path)
 
     if os.path.exists(file_path):
         content_type, _ = mimetypes.guess_type(file_path)
@@ -38,11 +36,10 @@ def file_detail(request, file_id):
         response['Content-Disposition'] = 'inline; filename=' + \
             os.path.basename(file_path)
 
-        return response
+        # return response
+        return render(request, 'file_detail.html', {'file': file, 'response': response, 'content_type': content_type})
     else:
         return HttpResponse('File not found')
-
-    # return render(request, 'file_detail.html', {'file': file})
 
 
 @login_required
