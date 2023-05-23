@@ -4,58 +4,72 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
 from django.contrib.auth import logout
 from django.contrib.auth.forms import UserCreationForm
-from .forms import PrivateFileForm
-from django.http import FileResponse, HttpResponse
-import mimetypes
-import os
+
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework import status
+from .serializers import PrivateFileSerializer, UserSerializer
+from django.contrib.auth.models import User
+from rest_framework import generics, permissions
+from rest_framework_simplejwt.tokens import RefreshToken
+
 
 # Create your views here.
 
+class UserRegistrationView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [permissions.AllowAny]
 
-def home(request):
-    return render(request, 'index.html')
+
+class ObtainJWTTokenView(generics.GenericAPIView):
+    serializer_class = UserSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        username = request.data.get('username')
+        password = request.data.get('password')
+        user = User.objects.filter(username=username).first()
+
+        if user and user.check_password(password):
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+            })
+        else:
+            return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
-@login_required
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def file_list(request):
     files = PrivateFile.objects.filter(user=request.user)
-    return render(request, 'file_list.html', {'files': files})
+    serializer = PrivateFileSerializer(files, many=True)
+    return Response(serializer.data)
 
 
-@login_required
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def file_detail(request, file_id):
-    file = PrivateFile.objects.get(id=file_id, user=request.user)
-
-    file_path = file.file.path
-
-    if os.path.exists(file_path):
-        content_type, _ = mimetypes.guess_type(file_path)
-
-        if content_type is None:
-            response = HttpResponse(file.file.read())
-        else:
-            response = FileResponse(file.file, content_type=content_type)
-        response['Content-Disposition'] = 'inline; filename=' + \
-            os.path.basename(file_path)
-
-        # return response
-        return render(request, 'file_detail.html', {'file': file, 'response': response, 'content_type': content_type})
-    else:
-        return HttpResponse('File not found')
+    try:
+        file = PrivateFile.objects.get(id=file_id, user=request.user)
+        serializer = PrivateFileSerializer(file)
+        return Response(serializer.data)
+    except PrivateFile.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
 
-@login_required
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def file_upload(request):
-    if request.method == 'POST':
-        form = PrivateFileForm(request.POST, request.FILES)
-        if form.is_valid():
-            file = form.save(commit=False)
-            file.user = request.user
-            file.save()
-            return redirect('files:file_list')
+    serializer = PrivateFileSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save(user=request.user)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
     else:
-        form = PrivateFileForm()
-    return render(request, 'file_upload.html', {'form': form})
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 def user_login(request):

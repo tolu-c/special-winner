@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'files.apps.FilesConfig',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -55,6 +56,18 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'private_files.urls'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        # Other authentication classes if needed
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+        # Other permission classes if needed
+    ],
+}
+
 
 TEMPLATES = [
     {
