@@ -11,4 +11,5 @@ urlpatterns = [
     path('upload-file/', views.upload_file, name='upload_file'),
     path('token/', views.MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh', TokenRefreshView.as_view(), name='token_refresh'),
+    path('register/', views.user_register, name='register')
 ]
