@@ -9,10 +9,14 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.views import APIView
 from .serializers import PrivateFileSerializer, UserSerializer
 from django.contrib.auth.models import User
 from rest_framework import generics, permissions
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+from django.contrib.auth import authenticate
+from rest_framework.authtoken.models import Token
 
 
 # Create your views here.
@@ -23,29 +27,31 @@ class UserRegistrationView(generics.CreateAPIView):
     permission_classes = [permissions.AllowAny]
 
 
-class ObtainJWTTokenView(generics.GenericAPIView):
-    serializer_class = UserSerializer
-    permission_classes = [permissions.AllowAny]
-
-    def post(self, request, *args, **kwargs):
+class UserLoginView(APIView):
+    def post(self, request):
         username = request.data.get('username')
         password = request.data.get('password')
-        user = User.objects.filter(username=username).first()
+        user = authenticate(username=username, password=password)
 
-        if user and user.check_password(password):
-            refresh = RefreshToken.for_user(user)
-            return Response({
-                'refresh': str(refresh),
-                'access': str(refresh.access_token),
-            })
+        if user:
+            token, _ = Token.objects.get_or_create(user=user)
+            return Response({'token': token.key})
         else:
             return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+class PrivateFileUploadView(generics.CreateAPIView):
+    queryset = PrivateFile.objects.all()
+    serializer_class = PrivateFileSerializer
+    permission_classes = [IsAuthenticated]
+    # authentication_classes = [BasicAuthentication]
 
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def file_list(request):
     files = PrivateFile.objects.filter(user=request.user)
+    # files = PrivateFile.objects.all(user=request.user)
     serializer = PrivateFileSerializer(files, many=True)
     return Response(serializer.data)
 
