@@ -1,9 +1,0 @@
-{% extends "base.html" %} {% load static %}
-<!-- comment -->
-{% block title %} Logged out {% endblock title %} {% block content %}
-<div class="login">
-  <h2>Logout</h2>
-  <p>You have been successfully logged out.</p>
-  <p><a href="{% url 'files:login' %}">Login again</a></p>
-</div>
-{% endblock content %}

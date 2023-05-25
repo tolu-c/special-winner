@@ -1,11 +1,11 @@
+import os
 from pathlib import Path
 import environ
 from datetime import timedelta
 
 env = environ.Env()
-# reading .env file
 environ.Env.read_env()
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
@@ -99,7 +99,9 @@ SIMPLE_JWT = {
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            os.path.join(BASE_DIR, 'frontend/build')
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -118,10 +120,24 @@ WSGI_APPLICATION = 'private_files.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'projectdb',
+#         'USER': 'admin',
+#         'PASSWORD': 'k[_T|DLvA#T|DLvA#Kz8QT|DLvA#Kz8QKz8QkQk',
+#         'HOST': 'project-db-mysql.c3u7x9kljn17.us-east-1.rds.amazonaws.com',
+#     }
+# }
+
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': env('DB_NAME'),
+        'USER': env('DB_USER'),
+        'PASSWORD': env('DB_PASSWORD'),
+        'HOST': env('DB_HOST'),
     }
 }
 
@@ -161,8 +177,15 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+    BASE_DIR / 'frontend/build/static'
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
