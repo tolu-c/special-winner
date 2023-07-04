@@ -120,17 +120,6 @@ WSGI_APPLICATION = 'private_files.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'projectdb',
-#         'USER': 'admin',
-#         'PASSWORD': 'k[_T|DLvA#T|DLvA#Kz8QT|DLvA#Kz8QKz8QkQk',
-#         'HOST': 'project-db-mysql.c3u7x9kljn17.us-east-1.rds.amazonaws.com',
-#     }
-# }
-
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
